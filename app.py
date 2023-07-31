@@ -5,6 +5,7 @@ from flask_login import UserMixin, LoginManager, login_user, login_required, cur
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length
+from wtforms.widgets import TextArea
 from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
@@ -72,6 +73,12 @@ class RegisterForm(FlaskForm):
     })
     submit = SubmitField('Register')
 
+class PostForm(FlaskForm):
+    title = StringField(validators=[InputRequired()])
+    content = StringField(validators=[InputRequired()], widget=TextArea())
+    tags = StringField(validators=[InputRequired()])
+    submit = SubmitField('Create Post')
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -107,6 +114,23 @@ def register():
 @login_required
 def dashboard():
     return render_template('dashboard.html', user=current_user)
+
+@app.route('/new', methods=['GET', 'POST'])
+@login_required
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data,
+                    content=form.content.data)
+        post.author = current_user
+        form.title.data = ''
+        form.content.data = ''
+        form.tags.data = ''
+        db.session.add(post)
+        db.session.commit()
+        return render_template('new.html', form=form)
+    else:
+        return render_template('new.html', form=form)
 
 @app.route('/logout')
 def logout():

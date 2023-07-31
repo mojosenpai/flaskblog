@@ -1,0 +1,17 @@
+{%extends 'base.html' %}
+
+{% block title %}New Post{% endblock %}
+{% block content %}
+<h1>Welcome to my website</h1>
+<form method="POST" action="">
+    {{form.hidden_tag()}}
+    <p>Post Title:</p>
+    {{form.title()}}
+    <p>Tags</p>
+    {{form.tags()}}
+    <p>Content</p>
+    {{form.content()}}
+    <br>
+    {{form.submit()}}
+</form>
+{% endblock %}

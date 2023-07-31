@@ -10,6 +10,8 @@ with app.app_context():
 
 roles = ['Author', 'Admin', 'Editor']
 
+tag_names = ['politics', 'sport', 'technology',
+             'finance', 'entertainment']
 users = []
 tags = []
 posts = []
@@ -19,16 +21,22 @@ for _ in range(10):
     user = User(name=fake.name(), username=fake.name(), password=fake.password(), role=random.choice(roles))
     users.append(user)
 
+for t_name in tag_names:
+    tag = Tag(name=t_name)
+    tags.append(tag)
 
-# user1 = User(name='Admin1', username='admin1', password='123456', role='Admin')
-# post1 = Post(title='Intro', content='fda;dahgjdahsg')
-# tag1 = Tag(name='politics')
-# post1.labels.append(tag1)
-# post1.author=user1
+for _ in range(50):
+    post = Post(title=fake.sentence(),
+                content=fake.text(),
+                author=random.choice(users))
+    posts.append(post)
+
+for post in posts:
+    current_tags = random.sample(tags, 2)
+    post.labels = current_tags
 
 with app.app_context():
-    # db.session.add(user1)
-    # db.session.add(post1)
-    # db.session.add(tag1)
     db.session.add_all(users)
+    db.session.add_all(tags)
+    db.session.add_all(posts)
     db.session.commit()

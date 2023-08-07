@@ -3,6 +3,13 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <h1>Welcome back, {{user.username}}</h1>
+{% for post in posts %}
+    <h2>{{post.title}}</h2>
+    <i>{{post.author.name}}</i>
+    <p>{% for tag in post.labels %}{{tag.name}}{% endfor %}</p>
+    <p>{{post.content}}</p>
+    <hr />
+{% endfor %}
 <a href="{{url_for('new_post')}}">Create New Post</a>
 <br>
 <a href="{{url_for('logout')}}">logout</a>

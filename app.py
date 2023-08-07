@@ -111,11 +111,23 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
+@app.route('/by/<author_id>')
+def by_author(author_id):
+    posts = Post.query.filter_by(author_id=author_id)
+    return render_template('home.html', posts=posts)
+
+@app.route('/tag/<name>')
+def by_tag(name):
+    tag = Tag.query.filter_by(name=name).first()
+    posts = tag.posts_labeled
+    return render_template('home.html', posts=posts)
+    
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
-
-    return render_template('dashboard.html', user=current_user)
+    posts = Post.query.filter_by(author_id=current_user.id)
+    return render_template('dashboard.html', user=current_user, posts=posts)
 
 @app.route('/new', methods=['GET', 'POST'])
 @login_required

@@ -85,7 +85,8 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
-    return render_template('home.html')
+    posts = Post.query.all()
+    return render_template('home.html', posts=posts)
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -113,6 +114,7 @@ def register():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+
     return render_template('dashboard.html', user=current_user)
 
 @app.route('/new', methods=['GET', 'POST'])
@@ -122,6 +124,14 @@ def new_post():
     if form.validate_on_submit():
         post = Post(title=form.title.data,
                     content=form.content.data)
+        tags = form.tags.data.split(',')
+        for tag in tags:
+            tag_in_db = Tag.query.filter_by(name=tag).first()
+            if not tag_in_db:
+                tag_in_db = Tag(name=tag)
+            post.labels.append(tag_in_db)
+            db.session.add(tag_in_db)
+            db.session.commit()
         post.author = current_user
         form.title.data = ''
         form.content.data = ''

@@ -3,14 +3,16 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_login import UserMixin, LoginManager, login_user, login_required, current_user, logout_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, FileField
 from wtforms.validators import InputRequired, Length
 from wtforms.widgets import TextArea
 from flask_bcrypt import Bcrypt
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'thesecretkey'
+app.config['UPLOAD_FOLDER'] = 'static/pictures'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -75,8 +77,9 @@ class RegisterForm(FlaskForm):
 
 class PostForm(FlaskForm):
     title = StringField(validators=[InputRequired()])
-    content = StringField(validators=[InputRequired()], widget=TextArea())
     tags = StringField(validators=[InputRequired()])
+    content = StringField(validators=[InputRequired()], widget=TextArea())
+    picture = FileField()
     submit = SubmitField('Create Post')
 
 @login_manager.user_loader
@@ -134,7 +137,16 @@ def dashboard():
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data,
+        picture = form.picture.data
+        if picture:
+            filename = str(Post.query.count() + 1) + '_' + picture.filename
+            filedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], filename)
+            picture.save(filedir)
+            post = Post(title=form.title.data,
+                    content=form.content.data,
+                    image=filedir)
+        else:
+            post = Post(title=form.title.data,
                     content=form.content.data)
         tags = form.tags.data.split(',')
         for tag in tags:

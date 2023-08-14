@@ -7,6 +7,9 @@
     <h2>{{post.title}}</h2>
     <i><a href="/by/{{post.author.id}}">{{post.author.name}}</a></i>
     <p>{% for tag in post.labels %}<a href="/tag/{{tag.name}}">{{tag.name}}      </a>{% endfor %}</p>
+    {% if post.image %}
+        <img src="static/pictures/{{post.image}}" />
+    {% endif %}
     <p>{{post.content}}</p>
     <hr />
 {% endfor %}

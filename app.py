@@ -144,7 +144,7 @@ def new_post():
             picture.save(filedir)
             post = Post(title=form.title.data,
                     content=form.content.data,
-                    image=filedir)
+                    image=filename)
         else:
             post = Post(title=form.title.data,
                     content=form.content.data)
@@ -165,6 +165,15 @@ def new_post():
         return render_template('new.html', form=form)
     else:
         return render_template('new.html', form=form)
+
+@app.route('/search/<text>')
+def search(text):
+    all_posts = Post.query.all()
+    posts = []
+    for post in all_posts:
+        if text in post.content:
+            posts.append(post)
+    return render_template('dashboard.html', posts=posts, user=current_user)
 
 @app.route('/logout')
 def logout():
